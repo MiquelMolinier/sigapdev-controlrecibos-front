@@ -142,8 +142,7 @@ class ListarComponentes extends Component {
             /*this.setState({
                dataOrdenada:listadoOrdenado
             });*/
-        }
-        //const url= 'https://api-modulocontrol.herokuapp.com/ubicaciones';
+        }        
         const url = URL.url.concat('ubicaciones');
         fetch(url, {
             method: 'GET',
@@ -159,10 +158,7 @@ class ListarComponentes extends Component {
                     this.setState({
                         ubicDato: dataTipo
                     });
-                    //  console.log(this.state.tipoDato);
-                    //console.log(res["data"]);
-
-                    //  console.log(this.state.dataTipo);
+         
                 } else {
                     alert("Fallo al cargar datos, Intentelo mas tarde")
                 }
@@ -193,7 +189,6 @@ class ListarComponentes extends Component {
         this.setState({
             JSON: arreglo2
         });
-        //  console.log(arreglo2);
         return arreglo2;
     }
 
@@ -457,9 +452,8 @@ class ListarComponentes extends Component {
 
 
     openModalUpg(e) {
-        let id = e;
-        const url = 'https://back-demo-sigap.herokuapp.com/recaudaciones/observaciones/' + id;
-        //console.log(url);
+        let id = e;        
+		const url = URL.url.concat("recaudaciones/observaciones/" + id);
         fetch(url, {
             method: 'GET',
             headers: {
@@ -482,12 +476,8 @@ class ListarComponentes extends Component {
             });
     }
     // envia un JSON al server
-    handleEnviarData() {
-        //console.log(this.state.JSON);
-        const arreglo = this.verificar();
-        //console.log(arreglo);
-        // console.log(JSON.stringify(arreglo));
-        // const url= 'https://api-modulocontrol.herokuapp.com/recaudaciones/id';
+    handleEnviarData() {        
+        const arreglo = this.verificar();        
         const url = URL.url.concat('recaudaciones/id');
         this.setState({
             isLoading: true
@@ -565,7 +555,22 @@ class ListarComponentes extends Component {
 
     render() {
         const listado = this.state.data;
-        //console.log(listado);
+        console.log(listado);
+        // cambio
+        // Tambien hay un cambio en el boton Registrar y en los botones de observación con el atributo disabled
+        var perfil = localStorage.getItem('perfil');
+        var config = localStorage.getItem('config');
+        var inactivo = false;
+        var mostrar = '';
+		console.log('perfil');
+		console.log(perfil);
+        if(perfil == '5'){
+            inactivo = true;
+        }else{
+			inactivo = false;			
+            //if(config == 'S') mostrar = 'none'
+        }
+        var contador = 1;	 
         return (
 
             <div className="table-scroll">
@@ -575,13 +580,14 @@ class ListarComponentes extends Component {
                         </div> */}
                     <div className="contenedor-flex flex-sb">
                         <div>
-                            <button className="btn btn-outline-primary" onClick={e => this.expandirTabla(e)}>VER MÁS</button>
+                            <button className="btn btn-outline-primary" disabled={inactivo} onClick={e => this.expandirTabla(e)}>VER MÁS</button>
                         </div>
                         <div>
                             <button
                                 id="Registrar"
                                 onClick={this.handleEnviarData}
                                 className="btn btn-outline-danger"
+								disabled={inactivo}
                             >
                                 Registrar
                             </button>
@@ -612,17 +618,17 @@ class ListarComponentes extends Component {
                     </thead>
                     <tbody>{listado.map((dynamicData, i) =>
                         <tr key={i}>
-                            <td>{i + 1}</td>
-                            <td onClick={(e) => this.eventoNombre(e)} title="click para ver detalles" className="detalles" id={(dynamicData.codigo === "0") ? (dynamicData.nombre) : (dynamicData.codigo)}>{dynamicData.nombre}</td>
-                            <td>{dynamicData.concepto}</td>
-                            <td className="text-left">{dynamicData.descripcion_min}</td>
-                            <td>{dynamicData.sigla_programa}</td>
-                            <td>{dynamicData.codigo}</td>
-                            <td>{dynamicData.recibo}</td>
-                            <td>{dynamicData.moneda}</td>
-                            <td>{dynamicData.mascara} {dynamicData.importe}</td>
-                            <td>{dynamicData.fecha.substring(0,10)}</td>
-                            <td>
+                            <td style={dynamicData.validado? {display: ''}:{display: mostrar}}>{contador}</td>
+                            <td style={dynamicData.validado? {display: ''}:{display: mostrar}} onClick={(e) => this.eventoNombre(e)} title="click para ver detalles" className="detalles" id={(dynamicData.codigo === "0") ? (dynamicData.nombre) : (dynamicData.codigo)}>{dynamicData.nombre}</td>
+                            <td style={dynamicData.validado? {display: ''}:{display: mostrar}}>{dynamicData.concepto}</td>
+                            <td style={dynamicData.validado? {display: ''}:{display: mostrar}} className="text-left">{dynamicData.descripcion_min}</td>
+                            <td  style={dynamicData.validado? {display: ''}:{display: mostrar}}>{dynamicData.sigla_programa}</td>
+                            <td  style={dynamicData.validado? {display: ''}:{display: mostrar}}>{dynamicData.codigo}</td>
+                            <td  style={dynamicData.validado? {display: ''}:{display: mostrar}}>{dynamicData.recibo}</td>
+                            <td  style={dynamicData.validado? {display: ''}:{display: mostrar}}>{dynamicData.moneda}</td>
+                            <td  style={dynamicData.validado? {display: ''}:{display: mostrar}}>{dynamicData.mascara} {dynamicData.importe}</td>
+                            <td  style={dynamicData.validado? {display: ''}:{display: mostrar}}>{dynamicData.fecha.substring(0,10)}</td>
+                            <td  style={dynamicData.validado? {display: ''}:{display: mostrar}}>
                                 <Combo
                                     items={this.state.ubicDato}
                                     val={this.handleChangeUbic}
@@ -630,11 +636,7 @@ class ListarComponentes extends Component {
                                     id_rec={dynamicData.id_rec}
                                 />
                             </td>
-
-
-
-
-                            <td>
+							<td  style={dynamicData.validado? {display: ''}:{display: mostrar}}>
                                 <Check
                                     validado={dynamicData.validado}
                                     id={dynamicData.id_rec}
@@ -642,20 +644,18 @@ class ListarComponentes extends Component {
                                     disabled={true}
                                 />
                             </td>
-                            
-
-                            <td className="two-obs">
+                            <td  style={dynamicData.validado? {display: ''}:{display: mostrar}} className="two-obs">
                                 <button id={dynamicData.observacion} name={dynamicData.id_rec}
                                     onClick={(e) => this.openModal(dynamicData.id_rec, dynamicData.obs)} className="btn btn-primary">
                                     <span className="mybtn-red glyphicon glyphicon-eye-open"></span>
                                 </button>
-                                <button id={dynamicData.observacion} name={dynamicData.id_rec}
+                                <button id={dynamicData.observacion} name={dynamicData.id_rec} disabled={inactivo}
                                     onClick={(e) => this.openModalUpg(dynamicData.id_rec, dynamicData.obs)} className="btn btn-primary">
                                     <span className="mybtn-blue glyphicon glyphicon-eye-open"></span>
                                 </button>
                             </td>
 
-                            <td className={this.state.expand ? "two-fields" : "d-none two-fields"}>
+                            <td  style={dynamicData.validado? {display: ''}:{display: mostrar}} className={this.state.expand ? "two-fields" : "d-none two-fields"}>
                                 <button id={dynamicData.observacion_upg} name={dynamicData.id_rec}
                                     onClick={(e) => this.asignar_desasignar(dynamicData.recibo,dynamicData.codigo,dynamicData.id_programa,1,dynamicData.id_alum,dynamicData.nombre, dynamicData.fecha,dynamicData.sigla_programa)} className="btn btn-success">
                                     <FaCheck/>
@@ -666,15 +666,13 @@ class ListarComponentes extends Component {
                                 </button>
                             </td>
 
-                            <td className={this.state.expand ? "" : "d-none"}>{dynamicData.tipo}</td>
+                            <td  style={dynamicData.validado? {display: ''}:{display: mostrar}} className={this.state.expand ? "" : "d-none"}>{dynamicData.tipo}</td>
 
 
-                            <td className={this.state.expand ? "" : "d-none"}>{dynamicData.id_registro == 2103 ? "DIGITADO" : "REMITIDO"}</td>                         
-
-
-
-                            
-                            
+                            <td  style={dynamicData.validado? {display: ''}:{display: mostrar}} className={this.state.expand ? "" : "d-none"}>{dynamicData.id_registro == 2103 ? "DIGITADO" : "REMITIDO"}</td>                         
+                            <script>
+                                {mostrar=='none'? (dynamicData.validado? contador++ : '') : contador++}
+                            </script>
 
                         </tr>
                     )}

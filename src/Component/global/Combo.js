@@ -24,8 +24,13 @@ class Combo extends Component{
 
     render(){
         const {items}=this.props;
+        // cambio
+        // Desactiva el select de acuerdo al perfil del usuario
+        var perfil = localStorage.getItem('perfil');
+        var inactivo = false;
+        if(perfil == '5') inactivo = true;
         return(
-          <select className="custom-select" onChange={this.handlerGuardar} id="inputGroupSelect01" >
+          <select className="custom-select" onChange={this.handlerGuardar} id="inputGroupSelect01" disabled={inactivo}>
             {items && items.sort((a,b)=>{
                 if(a.id_ubicacion>b.id_ubicacion){
                     return 1;

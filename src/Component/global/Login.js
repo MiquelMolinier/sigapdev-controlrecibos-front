@@ -23,6 +23,37 @@ class Login extends Component{
     async handleClick(e) {
         e.preventDefault()
         const URL = API.url;
+
+        // cambio
+// ---------------------------------------------------------------------------------------------------------------------------------
+        console.log('prueba inicio');
+        console.log('Username: ' + this.state.username);
+
+        var perfil = '';
+        await axios.get(
+            URL+'perfil', 
+            {params: {username: this.state.username}}
+        ).then(response =>{
+            perfil = response.data.data;
+        }).catch(e => {
+            console.log(e);
+        })
+
+        var config = '';
+        await axios.get(
+            URL+'config'
+        ).then(response =>{
+            config = response.data.data;
+        }).catch(e => {
+            console.log(e);
+        })
+
+        console.log('La configuracion es: ' + config)
+
+        console.log('El perfil es ' + perfil);
+        console.log('prueba fin');
+
+// ---------------------------------------------------------------------------------------------------------------------------------
         try {
             const response = await axios.post(URL+'login',{
                 username: this.state.username,
@@ -35,6 +66,8 @@ class Login extends Component{
                 }   
             })
             localStorage.setItem('user', true);
+            localStorage.setItem('perfil', perfil);
+            localStorage.setItem('config', config);
             window.location = '/';
         } catch (error) {
             console.log(error)

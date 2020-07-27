@@ -6,7 +6,11 @@ import { ModalManager } from "react-dynamic-modal";
 import Modal2 from "./MyModalNewC";
 import './css/Content.css';
 import './css/bootstrap.css';
+import axios from 'axios'
 
+var perfil = '';
+var config = '';
+var inactivo = false;
 class Content extends Component {
     constructor() {
         super();
@@ -43,6 +47,9 @@ class Content extends Component {
         this.limpiar = this.limpiar.bind(this)
         this.vaciado = this.vaciado.bind(this);
         this.handleAddClick = this.handleAddClick.bind(this);
+        // cambio
+        perfil = localStorage.getItem('perfil');
+        if(perfil == '5' ) inactivo = true;
     }
 
     handleAddClick(e, cod) {
@@ -176,9 +183,7 @@ class Content extends Component {
         //  even.preventDefault();
     }
     //buscar
-    handleSearchClick(e) {
-        //  let url = 'https://api-modulocontrol.herokuapp.com/recaudaciones/';
-        //          url = url.concat('detallada/');
+    handleSearchClick(e) {       
         let url = URL.url.concat('recaudaciones/detallada/');
         // console.log(url);
         if (this.state.nombre_apellido === "" && this.state.concepto === "" && this.state.recibo === "" &&
@@ -253,6 +258,10 @@ class Content extends Component {
     logout(e){
         e.preventDefault()
         localStorage.removeItem('user')
+        // cambio
+        // Tambien hay un cambio en el boton Agregar con el atributo disabled
+        localStorage.removeItem('perfil');
+        localStorage.removeItem('config');
         window.location = "/login"
     }
 
@@ -330,7 +339,7 @@ class Content extends Component {
                                 <div className="Botones">
                                     <div className="Buton-contenedor">
                                         <button id="Buscar" onClick={this.handleSearchClick} className="btn btn-primary">Buscar </button>
-                                        <button id="Agregar" onClick={e => this.handleAddClick(e, this.state.codigo)} className="btn btn-primary">Agregar</button>                                                                                
+                                        <button id="Agregar" onClick={e => this.handleAddClick(e, this.state.codigo) } className="btn btn-primary" disabled={inactivo} >Agregar</button>
                                         <button id="Limpiar" onClick={this.limpiar} className="btn btn-primary">Limpiar </button>
                                         <a className="btn btn-primary" href="" onClick={this.logout} >Salir</a>
                                     </div>

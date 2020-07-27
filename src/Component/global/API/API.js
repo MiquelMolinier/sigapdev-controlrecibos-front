@@ -1,3 +1,3 @@
 export default {    
-    "url": "https://sigapdev-controlrecibos-back.herokuapp.com/"   
+    "url": "https://sigapdev-controlrecibos-back1.herokuapp.com/"   
 }

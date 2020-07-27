@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Modal, ModalFooter, ModalHeader, ModalBody, Button, Label, Table } from 'reactstrap';
 import './css/bootstrap.css';
 import './css/Modal2.css';
+import API from './API/API'
+import axios from 'axios'
 var jsPDF = require('jspdf')
 require('jspdf-autotable')
 
@@ -71,9 +73,10 @@ class MyModal extends Component {
             index: i,
             modal: estado
         });
-        // console.log(text["FLORES RAMIREZ MARTHA POLI"]);
-        // console.log(text[Object.keys(this.state.data)[this.state.index]]);
 
+        // console.log(text["XXXXXXXXX"]);
+        // console.log(text[Object.keys(this.state.data)[this.state.index]]);
+        
     }
     ////<tbody>{text[Object.keys(this.state.data)[this.state.index]].map((dynamicData, i) =>
 
@@ -178,42 +181,61 @@ class MyModal extends Component {
         //let  lista2=[]
         let dat2 = this.state.dataAlterar
         console.log(dat2);
+        //let data2 = this.state.data.filter(data => data.validado== true) 
+        //console.log('data2');
+        //console.log(data2);
+
         for (let m = 0; m < dat2.length; m++) {
 
             if (dat2) {
 
-                let lista = [m + 1, this.state.dataAlterar[m].codigo, this.state.dataAlterar[m].recibo, this.state.dataAlterar[m].moneda, this.state.dataAlterar[m].importe, this.state.dataAlterar[m].fecha]
+                let lista = [m + 1, this.state.dataAlterar[m].codigo, this.state.dataAlterar[m].recibo, this.state.dataAlterar[m].moneda, this.state.dataAlterar[m].importe, this.state.dataAlterar[m].fecha, this.state.dataAlterar[m].validado]
                 console.log(lista);
             }
         }
     }
-    /*      lista2 = dat2.map(n=>{
-            let listax = {}
     
-            listax['id']=1
-            listax =[n[1].codigo
-            listax['recibo']=n[1].recibo
-            listax['moneda']=n[1].moneda
-            listax['importe']=n[1].importe
-            listax['fecha']=n[1].fecha
-            listax =[n[1].codigo,n[1].recibo,n[1].moneda,n[1].importe,n[1].fecha]
-          })
-    
-      for (let m = 0; m<dat2.length; m++) {
-    
-        if(dat2){
-    
-          let lista =[m+1,this.state.dataAlterar[m].codigo,this.state.dataAlterar[m].recibo,this.state.dataAlterar[m].moneda,this.state.dataAlterar[m].importe,this.state.dataAlterar[m].fecha]
-          console.log(lista);
-        }}}*/
     //Imprimir
-    Imprimir() {
+     async Imprimir() {
+
+        // Cambio
+        // Aqui hacer la consulta a BD
+        const URL = API.url;
+        var benefArray = [];
+        await axios.get(
+            URL + 'benef',
+            {params: {cod: this.state.data[0].codigo}}
+        ).then(response =>{
+            var subBenefArray = [];
+            subBenefArray.push('1')
+            if(response.data.data.benef_max) subBenefArray.push(response.data.data.benef_max);
+            else subBenefArray.push('');
+            if(response.data.data.benef_aut) subBenefArray.push(response.data.data.benef_aut);
+            else subBenefArray.push('');
+            if(response.data.data.benef_cond) subBenefArray.push(response.data.data.benef_cond);
+            else subBenefArray.push('');
+            if(response.data.data.benef_fecha) subBenefArray.push(response.data.data.benef_fecha);
+            else subBenefArray.push('');
+            if(response.data.data.benef_res) subBenefArray.push(response.data.data.benef_res);
+            subBenefArray.push('');
+            benefArray.push(subBenefArray);
+        }).catch(e => {
+            console.log(e);
+        })
+        console.log('Beneficio maximo: ' + benefArray[1] + ' | Autorizacion: '+ benefArray[2] +' | Condicion: '+ benefArray[3] +' | Fecha: '+ benefArray[4] +' | Resolucion: '+ benefArray[5]);
         //let data=[]
+		var columnsBenf0 = ["Nº","Beneficio","Autorización","Condición","Fecha","Resolución"];																						  
         var columnsBenf = ["N°", "Concepto", "Recibo", "Moneda", "Importe", "Fecha"];
         let lista = []
         let dat2 = this.state.dataAlterar
+        //FILTRANDO
+        //dat2 = this.state.dataAlterar.filter(dataAlterar => validado == true) 
+        //dat2 = this.state.dataAlterar.filter(dataAlterar => dataAlterar[6]== true) 
         var listadoFinal = [];
-        console.log(dat2);
+        //console.log('dat2');
+        //console.log(dat2);
+        //console.log('this.state.data[0].validado');
+        //console.log(this.state.data[0].validado);
         for (let m = 0; m < dat2.length; m++) {
 
             if (dat2) {
@@ -410,10 +432,8 @@ class MyModal extends Component {
         doc.setFontSize(11);
         doc.text("Datos del Beneficio", 37, 210);
 
-
-
-
-        doc.autoTable(columnsBenf, listadoFinal, {
+        //doc.autoTable(columnsBenf, listadoFinal, {
+		doc.autoTable(columnsBenf0, benefArray, {
             theme: 'grid',
             styles: {
                 cellPadding: 5, // a number, array or object (see margin below)
@@ -436,55 +456,81 @@ class MyModal extends Component {
             },
             startY: 230,
             showHeader: 'firstPage'
+		})
+        //});
+		
+		var first = doc.autoTable.previous;
 
-        });
-        /*
-                          var first = doc.autoTable.previous;
-                          //FOOTER
-                                  var pageCount = doc.internal.getNumberOfPages();
-        
-                                  for( let n = 0; n < pageCount; n++) {
-        
-        
-                                  doc.setPage(n);
-        
-                                  doc.setFont("helvetica");
-                                  doc.setFontType("bold");
-                                  doc.setTextColor(230);
-                                  doc.setFontSize(45);
-                                  doc.text(90,520 , 'DOCUMENTO SIN VALOR OFICIAL',null,32);
-                                  doc.setTextColor(0);
-                                  doc.setFontSize(10);
-                                  doc.text(35,585,"Modulo de control recibos");
-                                  doc.text(65,585,"-");
-                                  doc.text(75,585,"taller");
-                                  doc.text(125,585,"-");
-                                  doc.text(135,585,this.state.data[0].nombre);
-                                  doc.text(700,585,"SIGAP v.2.0");
-                                  doc.text(800,585, doc.internal.getCurrentPageInfo().pageNumber + "/" + pageCount);
-        
-                                  doc.setDrawColor(0, 0, 0);
-                                  doc.setLineWidth(0.5);
-                                  doc.line(35, 576,816, 576);
-        
-                                }
-        */
-        var first;
-        if (listadoFinal) {
-            first = doc.autoTable.previous;
-            doc.setFont("helvetica");
-            doc.setFontType("bold");
-            doc.setFontSize(10); //cambioooooooo
-            doc.text("TOTAL CANCELADO SOLES: S/." + this.sumaTotalSoles(), 520, first.finalY + 25);
-            //  doc.text("TOTAL CANCELADO: S/."+this.sumaTotalSoles,620,first.finalY+25);
+        // var finalY1 = first.finalY + 40;
+        var conceptos = [];
+        for(var i = 0; i < listadoFinal.length; i++){
+            conceptos.push(listadoFinal[i][1]);
         }
         if (listadoFinal) {
-            first = doc.autoTable.previous;
+            var conceptoAnterior = '0';
+            var coordenadaY = first.finalY + 25;
+            for(var i = 0; i < listadoFinal.length; i++){
+                var conceptoActual = listadoFinal[i][1];
+                if(conceptoAnterior != conceptoActual && conceptoActual){
+                    
+                    var listaConcepto = [];
+                    var contador = 0;
+                    for(var j = 0; j < listadoFinal.length; j++){
+                        if(listadoFinal[j][1] == conceptoActual){
+                            listaConcepto.push(listadoFinal[j]);
+                            contador = j;
+                        }                      
+                    }
+                    listaConcepto.push(listadoFinal[contador + 1]);
+                    listaConcepto.push(listadoFinal[contador + 2]);
+
+                    doc.setFont("helvetica");
+                    doc.setFontType("bold");
+                    doc.setFontSize(11);
+                    doc.text("Pago por concepto " + conceptoActual, 37, coordenadaY);
+
+                    doc.setDrawColor(0, 0, 0);
+                    doc.setLineWidth(0.5);
+                    doc.line(35, coordenadaY - 3, 35, coordenadaY + 2)
+                    doc.line(35, coordenadaY + 2, 750, coordenadaY + 2)
+
+                    doc.autoTable(columnsBenf, listaConcepto, {
+                        theme: 'grid',
+                        styles: {
+                            cellPadding: 5, // a number, array or object (see margin below)
+                            fontSize: 8,
+                            font: "helvetica", // helvetica, times, courier
+                            lineColor: 0,
+                            lineWidth: 0.5,
+                            fontStyle: 'normal', // normal, bold, italic, bolditalic
+                            overflow: 'ellipsize', // visible, hidden, ellipsize or linebreak
+                            fillColor: false, // false for transparent or a color as described below
+                            textColor: 0,
+                            halign: 'center', // left, center, right
+                            valign: 'middle', // top, middle, bottom
+                            columnWidth: 'auto' // 'auto', 'wrap' or a number
+                        },
+                        headerStyles: {
+                            fillColor: [180, 180, 180],
+                            textColor: 0,
+                            fontStyle: 'bold'
+                        },
+                        startY: first.finalY + 45,
+                        showHeader: 'firstPage'
+            
+                    });
+        
+                    first = doc.autoTable.previous;
+
+                    coordenadaY = first.finalY + 25;
+                    conceptoAnterior = conceptoActual;
+                }
+            }
             doc.setFont("helvetica");
             doc.setFontType("bold");
             doc.setFontSize(10);
+            doc.text("TOTAL CANCELADO SOLES: S/." + this.sumaTotalSoles(), 520, first.finalY + 25);
             doc.text("TOTAL CANCELADO DOLARES: $/." + this.sumaTotalDolares(), 520, first.finalY + 50);
-            //  doc.text("TOTAL CANCELADO: S/."+this.sumaTotalSoles,620,first.finalY+25);
         }
 
         var string = doc.output('datauristring');

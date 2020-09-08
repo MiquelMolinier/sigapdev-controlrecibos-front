@@ -6,8 +6,8 @@ import { ModalManager } from "react-dynamic-modal";
 import Modal2 from "./MyModalNewC";
 import './css/Content.css';
 import './css/bootstrap.css';
-import axios from 'axios'
-
+import axios from 'axios';
+import Swal from 'sweetalert2';
 var perfil = '';
 var config = '';
 var inactivo = false;
@@ -186,15 +186,20 @@ class Content extends Component {
     handleSearchClick(e) {       
         let url = URL.url.concat('recaudaciones/detallada/');
         // console.log(url);
-        if (this.state.nombre_apellido === "" && this.state.concepto === "" && this.state.recibo === "" &&
+        if (this.state.nombre_apellido === "" && this.state.concepto === "" && this.state.voucher === "" &&
             this.state.dates2 === "" && this.state.dates === "" && this.state.dni === "" && this.state.codigo === "") {
-            this.setState({
-                mensaje: "Casilleros vacios",
-                estado: true,
-                operacion: 'V',
-                lista: [],
-                isLoading: false
-            });
+            // this.setState({
+            //     mensaje: "Casilleros vacios",
+            //     estado: true,
+            //     operacion: 'V',
+            //     lista: [],
+            //     isLoading: false
+            // });
+            Swal.fire(
+                'Buscadores vacíos',
+                'Ingresar dato(s) en el(los) buscador(es) que desea',
+                'question'
+                )
         } else {
             let arra = {
                 "nombre": this.state.nombre_apellido,
@@ -243,6 +248,13 @@ class Content extends Component {
                         id: responseJson.data[0].id_alum
                     });
                     //console.log( responseJson.data.length);
+                })
+                .catch(err => {
+                    Swal.fire({
+                    icon: 'error',
+                    title: 'No existe',
+                    text: 'El dato ingresado no existe en el sistema',
+                    })
                 });
 
         }

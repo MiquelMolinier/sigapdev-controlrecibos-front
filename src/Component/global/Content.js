@@ -7,6 +7,7 @@ import Modal2 from "./MyModalNewC";
 import './css/Content.css';
 import './css/bootstrap.css';
 import axios from 'axios';
+import Check from './Check';
 import Swal from 'sweetalert2';
 var perfil = '';
 var config = '';
@@ -31,12 +32,14 @@ class Content extends Component {
             nombre: "",
             sigla: "",
             idPrograma: "",
-            id: ""
+            id: "",
+            validado: false
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleChange2 = this.handleChange2.bind(this);
         this.handleSearchClick = this.handleSearchClick.bind(this);
+        this.handleSearchAddClick = this.handleSearchAddClick.bind(this);
         this.handleInputName = this.handleInputName.bind(this);
         this.handleInputConcepto = this.handleInputConcepto.bind(this);
         this.handleInputRecibo = this.handleInputRecibo.bind(this);
@@ -47,14 +50,20 @@ class Content extends Component {
         this.limpiar = this.limpiar.bind(this)
         this.vaciado = this.vaciado.bind(this);
         this.handleAddClick = this.handleAddClick.bind(this);
+        this.handleInputValidado = this.handleInputValidado.bind(this);
         // cambio
         perfil = localStorage.getItem('perfil');
         if(perfil == '5' ) inactivo = true;
     }
 
+    
+
     handleAddClick(e, cod) {
+        
+            
         if (cod != "") {
-            ModalManager.open(
+            this.handleSearchAddClick(e).then((responseJson) => 
+                ModalManager.open(
                 <Modal2
                     id={this.state.id}
                     nombre={this.state.nombre}
@@ -62,12 +71,87 @@ class Content extends Component {
                     sigla={this.state.sigla}
                     idPrograma={this.state.idPrograma}
                 />
+            ) 
+            
             );
-            e.preventDefault();
+            e.preventDefault()
+            
         } else {
-            alert("Ingrese un código");
+            // alert("Ingrese un código");
+            Swal.fire(
+                'Ingresar un código',
+                '',
+                'question'
+            )
             e.preventDefault();
         }
+    }
+    
+    async handleSearchAddClick(e) {       
+         
+        let url = URL.url.concat('recaudaciones/detallada/');
+        
+        if (this.state.dni === "" && this.state.codigo === "") {
+            
+            Swal.fire(
+                'Buscadores vacíos',
+                'Ingresar dato(s) en el(los) buscador(es) que desea',
+                'question'
+                )
+        } else {
+            let arra = {
+                "nombre": this.state.nombre_apellido,
+                "periodoI": this.state.dates,
+                "id_concepto": this.state.concepto,
+                "periodoF": this.state.dates2,
+                "voucher": this.state.voucher,
+                "dni": this.state.dni,
+                "codigo": this.state.codigo,
+                "validado":this.state.validado
+            };
+            let arra2 = [arra]
+
+            this.setState({
+                isLoading: true,
+                mensaje: "",
+                operacion: "c"
+            });
+
+            let response = await fetch(url, {
+
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(arra, null, 2)
+
+            })
+            const responseJson = await response.json();
+
+            if(responseJson){
+                
+                    this.setState({
+                        lista: responseJson.data, //Todos los datos
+                        estado: true,
+                        operacion: (responseJson.data !== null && responseJson.data.length !== 0),
+                        mensaje: (responseJson.data !== null && responseJson.data.length !== 0) ? ("") : ("Datos no encontrados"),
+                        isLoading: false,
+                        nombre: responseJson.data[0].nombre,
+                        sigla: responseJson.data[0].sigla_programa,
+                        idPrograma: responseJson.data[0].id_programa,
+                        id: responseJson.data[0].id_alum
+                    });
+            } else{
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No existe',
+                    text: 'El dato ingresado no existe en el sistema',
+                    })
+            }
+
+        }
+        e.preventDefault();
     }
 
     // leer del input Concepto
@@ -101,6 +185,13 @@ class Content extends Component {
         return contenedor;
     }
 
+    handleInputValidado(data){
+        this.setState({
+            validado: !this.state.validado,
+            mensaje: "",
+            operacion: "c"
+        })
+    }
     //leer del input recibo
     handleInputRecibo(data) {
         this.setState({
@@ -123,6 +214,7 @@ class Content extends Component {
             codigo: data.target.value,
             mensaje: "",
             operacion: "c"
+            
         });
     }
     // funcion del calendario en date se almacena la fecha seleccionada
@@ -183,7 +275,8 @@ class Content extends Component {
         //  even.preventDefault();
     }
     //buscar
-    handleSearchClick(e) {       
+     handleSearchClick(e) {       
+         
         let url = URL.url.concat('recaudaciones/detallada/');
         // console.log(url);
         if (this.state.nombre_apellido === "" && this.state.concepto === "" && this.state.voucher === "" &&
@@ -208,11 +301,12 @@ class Content extends Component {
                 "periodoF": this.state.dates2,
                 "voucher": this.state.voucher,
                 "dni": this.state.dni,
-                "codigo": this.state.codigo
+                "codigo": this.state.codigo,
+                "validado":this.state.validado
             };
             let arra2 = [arra]
 
-
+            console.log("arra2");
             console.log(arra2);
             this.setState({
                 isLoading: true,
@@ -347,6 +441,12 @@ class Content extends Component {
                                     onKeyPress={this.handleKeyPress} />
                             </div>
 
+                            <div className="input-group mb-3 col-xs-12 col-md-12 col-lg-6">
+                                <div className="input-group-prepend">
+                                    <span className="input-group-text" id="basic-addon1">Verificar</span>
+                                </div>
+                                <input type="checkbox" onChange={this.handleInputValidado} className="DatosCSS-input-checkbox mt-2 ml-2" />
+                            </div>
                             <div className="cont_boton input-group mb-3 col-xs-12  text-center">
                                 <div className="Botones">
                                     <div className="Buton-contenedor">

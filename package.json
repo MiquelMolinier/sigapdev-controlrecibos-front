@@ -8,6 +8,7 @@
   "dependencies": {
     "@material-ui/core": "^3.9.3",
     "ajv": "^6.0.0",
+    "axios": "^0.19.0",
     "bootstrap": "^4.1.1",
     "html2canvas": "^1.0.0-alpha.12",
     "jquery": "^3.3.1",
@@ -15,6 +16,7 @@
     "jspdf-autotable": "^2.3.5",
     "prop-types": "^15.6.1",
     "react": "^16.4.1",
+    "react-bootstrap": "^0.32.4",
     "react-bootstrap-modal": "^4.2.0",
     "react-dom": "^16.4.1",
     "react-dynamic-modal": "^1.1.1",
@@ -23,8 +25,7 @@
     "react-scripts": "1.1.4",
     "reactstrap": "^6.2.0",
     "sweetalert": "^2.1.2",
-    "axios": "^0.19.0",
-    "react-bootstrap": "^0.32.4"
+    "sweetalert2": "^10.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
